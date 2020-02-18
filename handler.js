@@ -1,6 +1,6 @@
 'use strict';
-module.exports.hello =(event, context, callback) => {
-
+module.exports.UserAdd =(event, context, callback) => {
+  
   // if(event.queryStringParameters && event.queryStringParameters.name){
   //   return callback(null, {
   //     body: JSON.stringify({
@@ -10,9 +10,7 @@ module.exports.hello =(event, context, callback) => {
   // }
 
   if(event.httpMethod === 'POST' && event.body){
-
     let json = JSON.parse(event.body)
-    
     return callback(null, {
       body: JSON.stringify({
         message: 'Hi I Received msg!',
@@ -20,7 +18,7 @@ module.exports.hello =(event, context, callback) => {
       }),
     }
     )}
-
+    
     if(event.queryStringParameters.name === 'anuj'){
       return callback(null, 
       {
@@ -31,7 +29,7 @@ module.exports.hello =(event, context, callback) => {
           )
       })
     }
-    
+
   const response = {
     statusCode:200,
     body: JSON.stringify({
@@ -41,9 +39,12 @@ module.exports.hello =(event, context, callback) => {
 
 callback(null, response)
 };
- 
-       
 
-  // Use this code if you don't use the http event with the LAMBDA-PROXY integration
-  // return { message: 'Go Serverless v1.0! Your function executed successfully!', event };
+module.exports.developmentFun =(event, context, callback) => {
 
+  return callback(null, {
+    body: JSON.stringify({
+      message: 'Login Portal! You must enter valid email and password'
+    }),
+  } 
+  )}
