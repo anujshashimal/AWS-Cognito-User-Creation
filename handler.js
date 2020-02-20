@@ -1,50 +1,38 @@
 'use strict';
-module.exports.UserAdd =(event, context, callback) => {
-  
-  // if(event.queryStringParameters && event.queryStringParameters.name){
-  //   return callback(null, {
-  //     body: JSON.stringify({
-  //       message: 'Welcome ' + event.queryStringParameters.name ,
-  //     }),
-  //   })
-  // }
+const AWS = require('aws-sdk');
+const db = new AWS.DynamoDB.DocumentClient({ apiVersion: '2012-08-10' });
+const uuid = require('uuid/v4');
 
-  if(event.httpMethod === 'POST' && event.body){
-    let json = JSON.parse(event.body)
-    return callback(null, {
-      body: JSON.stringify({
-        message: 'Hi I Received msg!',
-        object: json
-      }),
-    }
-    )}
-    
-    if(event.queryStringParameters.name === 'anuj'){
-      return callback(null, 
-      {
-          body: JSON.stringify(
-              {
-                message: 'You cant access to the system'
-              }
-          )
-      })
-    }
+const postsTable = process.env.POSTS_TABLE;
 
-  const response = {
-    statusCode:200,
-    body: JSON.stringify({
-      message: 'Welcome' + event.queryStringParameters.name
-    }),
+function response(statusCode, message) {
+  return {
+    statusCode: statusCode,
+    body: JSON.stringify(message)
+  };
+}
+
+// Creating a user
+module.exports.createUser = (event, context, callback) => {
+  const reqBody = JSON.parse(event.body);
+  if (!reqBody.name || reqBody.name.trim() === '' || !reqBody.email || reqBody.email.trim() === '' || !reqBody.password || reqBody.password.trim() === '' ) {
+    return callback(null,response(400, {
+        error: 'Post must enter you name and email and they must not be empty'}));}
+  const post = {
+    id: uuid(),
+    createdAt: new Date().toISOString(),
+    userId: 1,
+    name: reqBody.name,
+    email: reqBody.email,
+    password: reqBody.password,
+
   };
 
-callback(null, response)
+  return db.put({
+      TableName: postsTable,
+      Item: post
+    }).promise().then(() => {
+      callback(null, response(201, post));
+    }).catch((err) => response(null, response(err.statusCode, err)));
+
 };
-
-module.exports.developmentFun =(event, context, callback) => {
-
-  return callback(null, {
-    body: JSON.stringify({
-      message: 'Login Portal! You must enter valid email and password'
-    }),
-  } 
-  )}
