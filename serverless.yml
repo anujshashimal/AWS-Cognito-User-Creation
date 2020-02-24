@@ -37,6 +37,20 @@ functions:
     - http:
         path: /getUser
         method: post
+    
+  TestingUser:
+    handler: handler.testing
+    events:
+    - http:
+        path: /testing
+        method: post
+        
+  appusercreate:
+    handler: app.createUserr
+    events:
+    - http:
+        path: /test
+        method: post
 
   # getItemFromDB:
   #   handler: handler.getItemFromDB(String)

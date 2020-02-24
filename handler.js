@@ -4,19 +4,51 @@ const db = new AWS.DynamoDB.DocumentClient({ apiVersion: '2012-08-10' });
 const uuid = require('uuid/v4');
 const postsTable = process.env.POSTS_TABLE;
 var attributeList = [];
+const AWSCognito = require('amazon-cognito-identity-js')
 
 const poolData = {
   UserPoolId: 'us-east-1_nDfxWYKwM',
   ClientId: '1fl22t1t1q58g2rjlppv97e0nh'
 };
 
-  module.exports.signup = async (data, callback) => {
+module.exports.testing = () => {  
+var name = {
+  Name : 'name',
+  Value : 'anuj' 
+};
+var email = {
+  Name : 'email',
+  Value : 'anuj@gmail.com' 
+};
+var password = {
+  Name : 'password',
+  Value : 'anuj321' 
+};
+var attributeName = new AWSCognito.CognitoIdentityServiceProvider.CognitoUserAttribute(name);
+var attributeEmail = new AWSCognito.CognitoIdentityServiceProvider.CognitoUserAttribute(email);
+var attributePassword = new AWSCognito.CognitoIdentityServiceProvider.CognitoUserAttribute(password);
+
+attributeList.push(attributeName);
+attributeList.push(attributeEmail);
+attributeList.push(attributePassword);
+var cognitoUser;
+
+userPool.signUp('email', 'password', attributeList, null, function(err, result){
+    if (err) {
+        alert(err);
+        return;}
+    cognitoUser = result.user;
+    console.log('user name is ' + cognitoUser.getUsername());
+});}
+
+  module.exports.signup = async (callback) => {
     const data = JSON.parse(event.body);
-    // const userPool = new AWS.CognitoIdentityServiceProvider.CognitoUserPool(poolData);
+    CognitoIdentityServiceProvider = new AWS.CognitoIdentityServiceProvider.CognitoUserPool(poolData);
+    
     if (!data.name || data.name.trim() === '' || !data.email || data.email.trim() === '' || !data.password || data.password.trim() === '' ) {
-      return callback(null,response(400, {error: 'Post must enter you name and email and they must not be empty'}));
+      return callback(null,response(400, {error: 'User must enter you name and email and they must not be empty'}));
     }
-       else {
+    else {
         try {
           attributeList.push(AWS.cognitoUserAttribute({
           Name: 'name',
@@ -31,16 +63,18 @@ const poolData = {
           Value: password,
         }));
       const userPool = AWS.cognitoUserPool(poolData);
-      userPool.signUp(name, email, password, attributeList);
+      userPool.signUp(attributeList);
     } catch (error) {
+      console.log(error)
       throw error;
     }
+
     // const addUser = await AWS.CognitoUserPool.createUser();
     if (addUser) { callback({statusMessage: util.statusMessage.USER_REGISTERED_SUCCESSFULLY,result : addUser});return;}
     else {callback({statusMessage: util.statusMessage.SERVER_BUSY});return;}
     } 
   }
-  
+
 function response(statusCode, message) {
   return {
     statusCode: statusCode,
@@ -48,22 +82,21 @@ function response(statusCode, message) {
   };
 }
 
-module.exports.login = async (event, context, callback) => {
-  const data = JSON.parse(event.body);
-  const userData = {
-    name = data.email,
-    password = data.password
-  }
+// module.exports.login = async (event, context, callback) => {
+//   const data = JSON.parse(event.body);
+//   const userData = {
+//     email = data.email,
+//     password = data.password
+//   }
 
-  if (!data.email || !data.password){
-    return callback( null, response(400, {error: 'You must enter the valid Username and Password'}))}
-  else{
-    const chkUser = await AWS.CognitoUserPool.fetchUser(userData);
-    if(chkUser){ callback(null, "You Successfually logged to the System")} 
-    else{ callback(null, module.exports.signup)}
-  }
-}
-
+//   if (!data.email || !data.password){
+//     return callback( null, response(400, {error: 'You must enter the valid Username and Password'}))}
+//   else{
+//     const chkUser = await AWS.CognitoUserPool.fetchUser(userData);
+//     if(chkUser){ callback(null, "You Successfually logged to the System")} 
+//     else{ callback(null, module.exports.signup)}
+//   }
+// }
 // Creating a user
 module.exports.createUser = (event, context, callback) => {
   const reqBody = JSON.parse(event.body);
