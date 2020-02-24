@@ -1,8 +1,10 @@
-service: sls
+org: anujshashimal45
+app: servrlesspro-app
+service: dev
 
 custom:
   settings:
-    POSTS_TABLE: postssTable
+    POSTS_TABLE: UserReg
 
 provider:
   name: aws
@@ -13,51 +15,39 @@ provider:
    - Effect: "Allow"
      Action:
         - dynamodb:PutItem
-
      Resource:
       - "arn:aws:dynamodb:${self:provider.region}:*:table/${self:custom.settings.POSTS_TABLE}"
 
 functions:
-  createPost:
+  createUser:
     handler: handler.createUser
     events:
     - http:
         path: /post
         method: post
-  getAllPosts:
-    handler: handler.getAllPosts
+  signup:
+    handler: handler.signup
     events:
     - http:
-        path: /posts
-        method: get
-  getPosts:
-    handler: handler.getPosts
+        path: /post/addusers
+        method: post
+  login:
+    handler: handler.login
     events:
     - http:
-        path: /posts/{number}
-        method: get
-  getPost:
-    handler: handler.getPost
-    events:
-    - http:
-        path: /post/{id}
-        method: get
-  updatePost:
-    handler: handler.updatePost
-    events:
-    - http:
-        path: /post/{id}
-        method: put
-  deletePost:
-    handler: handler.deletePost
-    events:
-    - http:
-        path: /post/{id}
-        method: delete
+        path: /getUser
+        method: post
+
+  # getItemFromDB:
+  #   handler: handler.getItemFromDB(String)
+  #   events:
+  #   - http:
+  #       path: /get
+  #       mathod: get
 
 resources:
   Resources:
-    postssTable:
+    UserRegisterTable:
       Type: AWS::DynamoDB::Table
       Properties:
         AttributeDefinitions:
