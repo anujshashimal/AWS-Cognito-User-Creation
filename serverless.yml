@@ -44,13 +44,7 @@ functions:
     - http:
         path: /testing
         method: post
-        
-  appusercreate:
-    handler: app.createUserr
-    events:
-    - http:
-        path: /test
-        method: post
+
 
   # getItemFromDB:
   #   handler: handler.getItemFromDB(String)

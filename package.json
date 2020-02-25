@@ -1,0 +1,28 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "handler.js",
+  "dependencies": {
+    "amazon-cognito-identity-js": "^3.2.4",
+    "amazon-cognito-identity-js-node": "^0.0.3",
+    "aws-sdk": "^2.624.0",
+    "jsonwebtoken": "^8.5.1",
+    "node-fetch": "^2.6.0",
+    "uuid": "^3.4.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anujshashimal/AWS-CloudFormation.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/anujshashimal/AWS-CloudFormation/issues"
+  },
+  "homepage": "https://github.com/anujshashimal/AWS-CloudFormation#readme"
+}
