@@ -4,9 +4,11 @@
   "description": "",
   "main": "handler.js",
   "dependencies": {
+    "@aws-sdk/client-cognito-identity-provider-node": "0.1.0-preview.2",
     "amazon-cognito-identity-js": "^3.2.4",
     "amazon-cognito-identity-js-node": "^0.0.3",
-    "aws-sdk": "^2.624.0",
+    "aws-sdk": "^2.626.0",
+    "dynamodb": "^1.2.1",
     "jsonwebtoken": "^8.5.1",
     "node-fetch": "^2.6.0",
     "uuid": "^3.4.0"

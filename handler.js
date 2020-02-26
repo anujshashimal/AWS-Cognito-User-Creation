@@ -1,54 +1,64 @@
 'use strict';
 const AWS = require('aws-sdk');
-const CognitoSDK = require('amazon-cognito-identity-js')
-AWS.CognitoIdentityServiceProvider.CognitoUserPool = CognitoSDK.CognitoUserPool;
-AWS.CognitoIdentityServiceProvider.CognitoUser = CognitoSDK.CognitoUser;
-
+const AWSCognito = require('amazon-cognito-identity-js')
+const CognitoUserPool = AWSCognito.CognitoUserPool;
 const db = new AWS.DynamoDB.DocumentClient({ apiVersion: '2012-08-10' });
 const uuid = require('uuid/v4');
 const postsTable = process.env.POSTS_TABLE;
 const attributeList = [];
+global.fetch = require('node-fetch');
+
 // const CognitoUserAttribute = require('amazon-cognito-identity-js')
+
 module.exports.testing = function(event) {  
   try {
+    const data = JSON.parse(event.body);
+
+    const username = {
+      Name : 'username',
+      Value : data.name
+     };
+     const email = {
+      Name : 'email',
+      Value : data.email
+      };
+      const password = {
+      Name : 'password',
+      Value : data.password
+      };
+      
   const poolData = {
-    UserPoolId: 'us-east-1_7KRHMq0Kz',
-    ClientId: '517j0l4fd970grm1oub46mrm1p'
+    UserPoolId: 'us-east-1_UpmO45G8o',
+    ClientId: '5cuuf1r7jjm2mh9toqa7aottoe'
   };
 
-  const data = event.body;
-  const userPool = new AWS.CognitoIdentityServiceProvider.CognitoUserPool(poolData);
+  console.log(event)
+  const userPool = new AWSCognito.CognitoUserPool(poolData);
+  const userData = {
+    Username: email,
+    Pool: userPool
+  }
+  const CognitoUserAttribute = new AWSCognito.CognitoUser(userData);
 
-var username = {
-  Name : 'username',
-  Value : data.name
-  };
-var email = {
-  Name : 'email',
-  Value : data.email
-  };
-var password = {
-  Name : 'password',
-  Value : data.password
-  };
-
-const attributeName = new AWS.CognitoIdentityServiceProvider.CognitoUserAttribute(username);
-const attributeEmail = new AWS.CognitoIdentityServiceProvider.CognitoUserAttribute(email);
-const attributePassword = new AWS.CognitoIdentityServiceProvider.CognitoUserAttribute(password);
+const attributeName = new AWSCognito.CognitoUserAttribute(username);
+const attributeEmail = new AWSCognito.CognitoUserAttribute(email);
+const attributePassword = new AWSCognito.CognitoUserAttribute(password);
 
 attributeList.push(attributeName);
 attributeList.push(attributeEmail);
 attributeList.push(attributePassword);
-var cognitoUser;
-userPool.signUp('username','email', 'password', attributeList, null, function(err, result){
-  if (err) {alert(err);return;}
-  cognitoUser = result.user;
-});
 
+console.log(attributeName)
+
+userPool.signUp(attributeList, null, function(err, result){
+  if (err) {
+    console.log(err)}
+  const cognitoUser = result.data;
+});
   } catch (error) {
   console.log(error)
-
 }
+
 
   module.exports.signup = async (callback) => {
  try{
@@ -59,15 +69,15 @@ userPool.signUp('username','email', 'password', attributeList, null, function(er
     else {
       try {
           attributeList.push(AWS.cognitoUserAttribute({
-          Name: 'username',
+          Name: 'phonenumber',
           Value: data.name,
         })), 
         attributeList.push(AWS.cognitoUserAttribute({
-          Name: 'email',
+          Name: 'res',
           Value: data.email,
         })),
         attributeList.push(AWS.cognitoUserAttribute({
-          Name: 'password',
+          Name: 'address',
           Value: data.password,
         }));
       const userPool = AWS.cognitoUserPool(poolData);
@@ -93,15 +103,18 @@ function response(statusCode, message) {
 
 module.exports.login = async (event, context) => {
   const data = JSON.parse(event.body);
+  console.log(data)
+  console.log(event)
+
   const poolData = {
-    UserPoolId: 'us-east-1_7KRHMq0Kz',
-    ClientId: '517j0l4fd970grm1oub46mrm1p'
+    UserPoolId: 'us-east-1_UpmO45G8o',
+    ClientId: '5cuuf1r7jjm2mh9toqa7aottoe'
   };
 
 var userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
 var userData = {
-	Email: data.email,
-	Pool: userPool,
+	Username: data.username,
+	pool: userPool,
 };
 
 var cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
@@ -113,40 +126,28 @@ cognitoUser.confirmRegistration('123456', true, function(err, result) {
 })}
 
 // Creating a user
-// module.exports.createUser = (event, context, callback) => {
-//   const reqBody = JSON.parse(event.body);
 
-//   if (!reqBody.name || reqBody.name.trim() === '' || !reqBody.email || reqBody.email.trim() === '' || !reqBody.password || reqBody.password.trim() === '' ) {
-//     return callback(null,response(400, {error: 'Post must enter you name and email and they must not be empty'}));
-//     }
-//   const post = {
-//     id: uuid(),
-//     createdAt: new Date().toISOString(),
-//     userId: 1,
-//     name: reqBody.name,
-//     email: reqBody.email,
-//     password: reqBody.password,
-//   };
+module.exports.createUser = async (event, callback) => {
+  const reqBody = JSON.parse(event.body);
+  if (!reqBody.name || reqBody.name.trim() === '' || !reqBody.email || reqBody.email.trim() === '' || !reqBody.password || reqBody.password.trim() === '' ) {
+    return callback(null,response(400, {error: 'Post must enter you name and email and they must not be empty'}));
+    }
+  const post = {
+    id: uuid(),
+    createdAt: new Date().toISOString(),
+    userId: 1,
+    name: reqBody.name,
+    email: reqBody.email,
+    password: reqBody.password,
+  };
   
-//   return db.put({
-//       TableName: postsTable,
-//       Item: post
-//     }).promise().then(() => {
-//       callback(null, response(201, post));
-//     }).catch((err) => response(null, response(err.statusCode, err)));
+  return db.put({
+      TableName: postsTable,
+      Item: post
+    }).promise().then(() => {
+      callback(null, response(201, post));
+    }).catch((err) => response(null, response(err.statusCode, err)));  
+};
 
-// };
-
-
-// module.exports.getItemFromDB(String)
-//  {
-//   const params = {
-//     TableName: postsTable,
-//     Key: {
-//       id
-//     }
-//   };
-// return dynamoDB.get(params).promise().then(res => res.Item).catch(err => err);
-// }
 
 }

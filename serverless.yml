@@ -1,6 +1,6 @@
 org: anujshashimal45
 app: servrlesspro-app
-service: dev
+service: testing
 
 custom:
   settings:
