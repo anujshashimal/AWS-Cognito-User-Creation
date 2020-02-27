@@ -7,29 +7,29 @@ const uuid = require('uuid/v4');
 const postsTable = process.env.POSTS_TABLE;
 const attributeList = [];
 global.fetch = require('node-fetch');
-
+const qs = require('querystring');
 // const CognitoUserAttribute = require('amazon-cognito-identity-js')
 
 module.exports.testing = function(event) {  
-  try {
-    const data = JSON.parse(event.body);
+
+// const data = JSON.stringify(event)
 
     const username = {
-      Name : 'username',
-      Value : data.name
+      Name : 'given_name',
+      Value : 'Anuj'
      };
      const email = {
       Name : 'email',
-      Value : data.email
+      Value : 'anujshashimal45@gmail.com'
       };
-      const password = {
-      Name : 'password',
-      Value : data.password
-      };
-      
+      const mobileNum = {
+        Name : 'phone_number',
+        Value : '+973673823'
+        };
+
   const poolData = {
-    UserPoolId: 'us-east-1_UpmO45G8o',
-    ClientId: '5cuuf1r7jjm2mh9toqa7aottoe'
+    UserPoolId: 'us-east-1_VgnmxXYMF',
+    ClientId: '2gnb5hpsb4arauqukv12pjlac'
   };
 
   console.log(event)
@@ -37,28 +37,42 @@ module.exports.testing = function(event) {
   const userData = {
     Username: email,
     Pool: userPool
-  }
+}
   const CognitoUserAttribute = new AWSCognito.CognitoUser(userData);
 
 const attributeName = new AWSCognito.CognitoUserAttribute(username);
 const attributeEmail = new AWSCognito.CognitoUserAttribute(email);
-const attributePassword = new AWSCognito.CognitoUserAttribute(password);
+// const attributePassword = new AWSCognito.CognitoUserAttribute(password);
+const attributeMobile= new AWSCognito.CognitoUserAttribute(mobileNum);
 
 attributeList.push(attributeName);
 attributeList.push(attributeEmail);
-attributeList.push(attributePassword);
+// attributeList.push(attributePassword);
+attributeList.push(attributeMobile)
 
 console.log(attributeName)
 
-userPool.signUp(attributeList, null, function(err, result){
-  if (err) {
-    console.log(err)}
-  const cognitoUser = result.data;
-});
-  } catch (error) {
-  console.log(error)
-}
+userPool.signUp('username', 'password' , attributeList, null , function(err,result) {
+	if (err) {
+    console.log(err)
+    return;
+	}
+	var cognitoUser = result.user;
+	console.log('user name is ' + cognitoUser.getUsername());
+})
 
+var cognitoUser = new AWSCognito.CognitoUser(userData);
+cognitoUser.confirmRegistration('015366', true, function(err, result) {
+
+	if (err) {
+    console.log(err)
+    return;
+	}
+	console.log('call result: ' + result);
+});
+
+
+}
 
   module.exports.signup = async (callback) => {
  try{
@@ -129,6 +143,7 @@ cognitoUser.confirmRegistration('123456', true, function(err, result) {
 
 module.exports.createUser = async (event, callback) => {
   const reqBody = JSON.parse(event.body);
+
   if (!reqBody.name || reqBody.name.trim() === '' || !reqBody.email || reqBody.email.trim() === '' || !reqBody.password || reqBody.password.trim() === '' ) {
     return callback(null,response(400, {error: 'Post must enter you name and email and they must not be empty'}));
     }
@@ -150,4 +165,4 @@ module.exports.createUser = async (event, callback) => {
 };
 
 
-}
+

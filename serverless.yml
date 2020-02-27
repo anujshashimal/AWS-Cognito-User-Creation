@@ -15,8 +15,19 @@ provider:
    - Effect: "Allow"
      Action:
         - dynamodb:PutItem
+        - cloudformation:*
+        - s3:*
+        - logs:*
+        - iam:*
+        - apigateway:*
+        - lambda:*
+        - ec2:DescribeSecurityGroups
+        - ec2:DescribeSubnets
+        - ec2:DescribeVpcs
+        - events:*
      Resource:
       - "arn:aws:dynamodb:${self:provider.region}:*:table/${self:custom.settings.POSTS_TABLE}"
+      - "arn:aws:cognito-idp:us-east-1:863001571818:userpool/us-east-1_VgnmxXYMF"
 
 functions:
   createUser:
@@ -68,6 +79,7 @@ resources:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
         TableName: ${self:custom.settings.POSTS_TABLE}
+        
 
 
 
