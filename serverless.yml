@@ -55,6 +55,19 @@ functions:
     - http:
         path: /testing
         method: post
+        
+  UserVerification:
+    handler: handler.auth
+    events:
+    - http:
+        path: /testing/auth
+        method: post
+  PostUserDetails:
+    handler: handler.tester
+    events:
+    - http:
+        path: /tester
+        method: post
 
 
   # getItemFromDB:
