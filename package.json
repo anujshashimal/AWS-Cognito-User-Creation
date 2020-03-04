@@ -5,10 +5,12 @@
   "main": "handler.js",
   "dependencies": {
     "@aws-sdk/client-cognito-identity-provider-node": "0.1.0-preview.2",
-    "amazon-cognito-identity-js": "^3.2.4",
+    "amazon-cognito-identity-js": "^3.2.5",
     "amazon-cognito-identity-js-node": "^0.0.3",
     "aws-sdk": "^2.626.0",
     "body-parser-for-serverless": "^1.0.1",
+    "cognito-user-pool": "^0.2.4",
+    "cross-fetch": "^3.0.4",
     "dynamodb": "^1.2.1",
     "jsonwebtoken": "^8.5.1",
     "node-fetch": "^2.6.0",

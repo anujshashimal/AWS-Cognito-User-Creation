@@ -1,33 +1,25 @@
-org: anujshashimal45
-app: servrlesspro-app
+
 service: testing
 
 custom:
   settings:
     POSTS_TABLE: UserReg
+    UserPoolId: "us-east-1_dxsLZ05D0"
+    ClientId: "6r6cdd31j334ilsbis5cap9pah"
 
 provider:
   name: aws
   runtime: nodejs12.x
   region: us-east-1
   environment: ${self:custom.settings}
+
   iamRoleStatements:
    - Effect: "Allow"
-     Action:
-        - dynamodb:PutItem
-        - cloudformation:*
-        - s3:*
-        - logs:*
-        - iam:*
-        - apigateway:*
-        - lambda:*
-        - ec2:DescribeSecurityGroups
-        - ec2:DescribeSubnets
-        - ec2:DescribeVpcs
-        - events:*
+     Action: '*'
      Resource:
       - "arn:aws:dynamodb:${self:provider.region}:*:table/${self:custom.settings.POSTS_TABLE}"
       - "arn:aws:cognito-idp:us-east-1:863001571818:userpool/us-east-1_VgnmxXYMF"
+      - "arn:aws:cognito-idp:us-east-1:863001571818:userpool/us-east-1_dxsLZ05D0"
 
 functions:
   createUser:
@@ -60,22 +52,16 @@ functions:
     handler: handler.auth
     events:
     - http:
-        path: /testing/auth
+        path: /auth
         method: post
-  PostUserDetails:
-    handler: handler.tester
+            
+  GetUserAttribute:
+    handler: handler.getUser
     events:
     - http:
-        path: /tester
-        method: post
+        path: /getUser
+        method: GET
 
-
-  # getItemFromDB:
-  #   handler: handler.getItemFromDB(String)
-  #   events:
-  #   - http:
-  #       path: /get
-  #       mathod: get
 
 resources:
   Resources:
