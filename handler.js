@@ -1,6 +1,5 @@
 'use strict';
 const AWS = require('aws-sdk');
-require('cross-fetch/polyfill');
 const AWSCognito = require('amazon-cognito-identity-js')
 const CognitoUserPool = AWSCognito.CognitoUserPool;
 const db = new AWS.DynamoDB.DocumentClient({ apiVersion: '2012-08-10' });
@@ -9,7 +8,7 @@ const postsTable = process.env.POSTS_TABLE;
 const cognitoEnvClientID = process.env.UserPoolId
 const cognitoEnvPoolId = process.env.ClientId
 const attributeList = [];
-global.fetch = require('node-fetch');
+
 AWS.config.apiVersions = {
   cognitoidentityserviceprovider: '2016-04-18',
 };
@@ -18,12 +17,12 @@ AWS.config.region = 'us-east-1'; // Region
 AWS.config.credentials = new AWS.CognitoIdentityCredentials({
     IdentityPoolId: 'us-east-1:b7ac9d19-027a-49f5-ad7b-856e4433b2c9',
 });
+const cognitoIdentityServiceProvider = new AWS.CognitoIdentityServiceProvider();
 
 AWS.config.apiVersions = {
   cognitoidentityserviceprovider: '2016-04-18',
   // other service API versions
 };
-
 
 function createResponse(status, body) {
   return {
@@ -35,8 +34,8 @@ function createResponse(status, body) {
   }
 }
 
-
 //-----------------------function1-----------------------
+
 const poolData = {UserPoolId: cognitoEnvClientID, ClientId: cognitoEnvPoolId};
 
 module.exports.testing = function(event, context, callback) {
@@ -47,11 +46,11 @@ module.exports.testing = function(event, context, callback) {
       const mobileNum = {Name : 'phone_number',Value : data.mobileNum};
 
       console.log(event)
-
       const userPool = new AWSCognito.CognitoUserPool(poolData);
       const userData = {
         Username: data.email,
-        Pool: userPool}
+        Pool: userPool
+      }
 
       const CognitoUserAttribute = new AWSCognito.CognitoUser(userData);
       const attributeName = new AWSCognito.CognitoUserAttribute(username);
@@ -68,15 +67,12 @@ module.exports.testing = function(event, context, callback) {
 
       userPool.signUp(data.username, data.password , attributeList, null , function(err,result) {
 	      if (err) {
-          return callback(null, createResponse(404, 'Error'))
-        }
+          return callback(null, createResponse(404, 'Error'))}
 	    const cognitoUser = result.user;
           console.log('username is ' + cognitoUser.getUsername());
           return callback(null, createResponse(200,'Success!'))
       })
 }
-
-
 //-----------------------function2-----------------------
 
 module.exports.auth = async(event) => {
@@ -105,7 +101,6 @@ console.log('First!',event)
 }
 
 //-----------------------function3-----------------------
-
 
   module.exports.signup = async (callback) => {
  try{
@@ -202,12 +197,10 @@ module.exports.createUser = async (event, callback) => {
 };
 
 
-
 //-----------------------function6-----------------------
 
 
-
-exports.tester = async (event) => {
+exports.tester = async (event, context, callback) => {
   switch (event.httpMethod) {
       case 'POST':
           const data = JSON.parse(event.body)
@@ -216,16 +209,57 @@ exports.tester = async (event) => {
       default:
           throw new Error(`Unsupported method "${event.httpMethod}"`);
   }
-  return {
-      statusCode: 200,
-      body: JSON.stringify({message: 'Success'})
-      
-  }
+  return callback(null, createResponse(202 , 'Success'))
 };
 
 
 //-----------------------function7-----------------------
+module.exports.checkUserExists = async (event) => {
 
+  // const poolData = {, ClientId: cognitoEnvPoolId};
+  console.log('Hello', event)
+
+  const data = JSON.parse(event.body)
+
+  // const userPool = new AWSCognito.CognitoUserPool(poolData);
+  
+  const userData = {
+    Username: data.email,
+    UserPoolId: cognitoEnvPoolId,
+  };
+  console.log('Before Hello')
+
+try{
+  cognitoIdentityServiceProvider.adminGetUser(userData, function(err, data) {
+    if(err){
+      console.log('Hello 01')
+      console.log(err)
+      return }
+
+    else if(data.UserStatus == "UNCONFIRMED") {
+      console.log('Hello 03')
+
+      cognitoIdentityServiceProvider.deleteUser(poolData, (err, data) =>{
+        if(err){
+          console.log('Hello 04')
+
+          console.log("User Not Deleted!")
+        }
+        console.log('Hello 05')
+
+          console.log("User Deleted Successfually")
+      })
+    }
+    console.log('Hello 06')
+
+
+  })
+
+} catch(err){
+  console.log(err)
+}
+
+}
 
 module.exports.getUser = async (event)  => {
   const data = JSON.parse(event)
@@ -247,8 +281,8 @@ module.exports.getUser = async (event)  => {
   cognitoUser.getUserAttributes(function(err, result) {
     
     if (err) {
-      alert(err.message || JSON.stringify(err));
-      return;
+
+      return send.statu;
       }
     for (i = 0; i < result.length; i++) {
       console.log('attribute ' + result[i].getName() + ' has value ' + result[i].getValue());

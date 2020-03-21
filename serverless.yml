@@ -28,6 +28,7 @@ functions:
     - http:
         path: /post
         method: post
+  
   signup:
     handler: handler.signup
     events:
@@ -61,6 +62,13 @@ functions:
     - http:
         path: /getUser
         method: GET
+        
+  AdminDeleteUser:
+    handler: handler.checkUserExists
+    events:
+    - http:
+        path: /admindlt
+        method: POST
 
 
 resources:
