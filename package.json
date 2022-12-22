@@ -12,7 +12,7 @@
     "cognito-user-pool": "^0.2.4",
     "cross-fetch": "^3.0.4",
     "dynamodb": "^1.2.1",
-    "jsonwebtoken": "^8.5.1",
+    "jsonwebtoken": "^9.0.0",
     "node-fetch": "^2.6.0",
     "query-string": "^6.11.0",
     "uuid": "^3.4.0"
